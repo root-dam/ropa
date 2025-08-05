@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accesorios - StyleHub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>Style<span>Hub</span></h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="ropa.html">Ropa</a></li>
+                <li><a href="perfumes.html">Perfumes</a></li>
+                <li><a href="accesorios.html" class="active">Accesorios</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+            </ul>
+        </nav>
+        <div class="carrito-icono">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="carrito-contador">0</span>
+        </div>
+    </header>
+
+    <div class="carrito">
+        <h2>Tu Carrito</h2>
+        <div class="carrito-contenido">
+            <!-- Los productos del carrito se añadirán aquí con JavaScript -->
+        </div>
+        <div class="carrito-total">
+            <p>Total: <span>$0.00</span></p>
+            <button class="btn-pagar">Pagar</button>
+            <button class="btn-vaciar">Vaciar Carrito</button>
+        </div>
+    </div>
+
+    <section class="pagina-categoria">
+        <h2>Nuestra Colección de Accesorios</h2>
+        <div class="filtros">
+            <select id="filtro-tipo">
+                <option value="todos">Todos</option>
+                <option value="relojes">Relojes</option>
+                <option value="joyeria">Joyeria</option>
+                <option value="bolsos">Bolsos</option>
+                <option value="gafas">Gafas</option>
+            </select>
+            <select id="filtro-material">
+                <option value="todos">Todos los materiales</option>
+                <option value="acero">Acero</option>
+                <option value="oro">Oro</option>
+                <option value="plata">Plata</option>
+                <option value="cuero">Cuero</option>
+            </select>
+        </div>
+        <div class="productos-grid">
+            <div class="producto" data-id="31" data-categoria="accesorios" data-tipo="relojes" data-material="acero">
+                <img src="images/reloj1.jpg" alt="Reloj Elegante">
+                <h3>Reloj Elegante</h3>
+                <p>$99.99</p>
+                <button class="btn-anadir">Añadir al carrito</button>
+            </div>
+            <div class="producto" data-id="32" data-categoria="accesorios" data-tipo="joyeria" data-material="plata">
+                <img src="images/collar1.jpg" alt="Collar de Plata">
+                <h3>Collar de Plata</h3>
+                <p>$45.99</p>
+                <button class="btn-anadir">Añadir al carrito</button>
+            </div>
+            <div class="producto" data-id="33" data-categoria="accesorios" data-tipo="bolsos" data-material="cuero">
+                <img src="images/bolso1.jpg" alt="Bolso de Cuero">
+                <h3>Bolso de Cuero</h3>
+                <p>$79.99</p>
+                <button class="btn-anadir">Añadir al carrito</button>
+            </div>
+            <div class="producto" data-id="34" data-categoria="accesorios" data-tipo="gafas" data-material="acero">
+                <img src="images/gafas1.jpg" alt="Gafas de Sol">
+                <h3>Gafas de Sol Premium</h3>
+                <p>$59.99</p>
+                <button class="btn-anadir">Añadir al carrito</button>
+            </div>
+            <div class="producto" data-id="35" data-categoria="accesorios" data-tipo="joyeria" data-material="oro">
+                <img src="images/anillo1.jpg" alt="Anillo de Oro">
+                <h3>Anillo de Oro</h3>
+                <p>$89.99</p>
+                <button class="btn-anadir">Añadir al carrito</button>
+            </div>
+            <div class="producto" data-id="36" data-categoria="accesorios" data-tipo="relojes" data-material="oro">
+                <img src="images/reloj2.jpg" alt="Reloj de Oro">
+                <h3>Reloj de Oro</h3>
+                <p>$149.99</p>
+                <button class="btn-anadir">Añadir al carrito</button>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Sobre Nosotros</h3>
+                <p>StyleHub ofrece las últimas tendencias en moda, perfumes y accesorios con la mejor calidad.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Enlaces Rápidos</h3>
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="ropa.html">Ropa</a></li>
+                    <li><a href="perfumes.html">Perfumes</a></li>
+                    <li><a href="accesorios.html">Accesorios</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contacto</h3>
+                <p>info@stylehub.com</p>
+                <p>+1 234 567 890</p>
+                <div class="socials">
+                    <i class="fab fa-facebook"></i>
+                    <i class="fab fa-instagram"></i>
+                    <i class="fab fa-twitter"></i>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 StyleHub. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="js/carrito.js"></script>
+    <script>
+        // Filtros para accesorios
+        document.getElementById('filtro-tipo').addEventListener('change', filtrarProductos);
+        document.getElementById('filtro-material').addEventListener('change', filtrarProductos);
+
+        function filtrarProductos() {
+            const tipo = document.getElementById('filtro-tipo').value;
+            const material = document.getElementById('filtro-material').value;
+            const productos = document.querySelectorAll('.producto');
+
+            productos.forEach(producto => {
+                const productoTipo = producto.getAttribute('data-tipo');
+                const productoMaterial = producto.getAttribute('data-material');
+
+                const tipoMatch = tipo === 'todos' || productoTipo === tipo;
+                const materialMatch = material === 'todos' || productoMaterial === material;
+
+                if (tipoMatch && materialMatch) {
+                    producto.style.display = 'block';
+                } else {
+                    producto.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

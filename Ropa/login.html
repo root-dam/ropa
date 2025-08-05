@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Iniciar Sesión - StyleHub</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 400px;
+            margin: 3rem auto;
+            padding: 1rem;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 2rem;
+        }
+        form {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 0.3rem;
+            font-weight: bold;
+            color: #444;
+        }
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1.2rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 0.9rem;
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #ff5252;
+        }
+        .mensaje {
+            margin-top: 1rem;
+            text-align: center;
+            font-size: 0.9rem;
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+        .link-register {
+            margin-top: 1rem;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        .link-register a {
+            color: #ff6b6b;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .link-register a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Iniciar Sesión</h1>
+
+    <form id="login-form">
+        <label for="email">Correo electrónico</label>
+        <input type="email" id="email" placeholder="correo@ejemplo.com" required />
+
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" placeholder="Tu contraseña" required />
+
+        <button type="submit">Entrar</button>
+
+        <div class="mensaje" id="mensaje"></div>
+
+        <div class="link-register">
+            ¿No tienes cuenta? <a href="registro.html">Regístrate aquí</a>
+        </div>
+    </form>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+        const supabaseUrl = 'https://TU_URL_DE_SUPABASE.supabase.co';
+        const supabaseKey = 'TU_API_KEY_PUBLICA';
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        const form = document.getElementById('login-form');
+        const mensaje = document.getElementById('mensaje');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            mensaje.textContent = '';
+            mensaje.classList.remove('error');
+
+            const email = form.email.value;
+            const password = form.password.value;
+
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                mensaje.textContent = error.message;
+                mensaje.classList.add('error');
+            } else {
+                mensaje.textContent = 'Sesión iniciada correctamente. Redirigiendo...';
+                setTimeout(() => {
+                    window.location.href = 'perfil.html';
+                }, 1500);
+            }
+        });
+    </script>
+</body>
+</html>

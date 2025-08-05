@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Finalizar Compra - StyleHub</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 600px; 
+            margin: 2rem auto; 
+            padding: 1rem; 
+            line-height: 1.6;
+        }
+        #resumen-pedido {
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        .item-pedido {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        .item-imagen {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 1rem;
+        }
+        .item-info {
+            flex: 1;
+        }
+        .item-nombre {
+            font-weight: bold;
+            margin-bottom: 0.3rem;
+        }
+        .item-precio {
+            color: #666;
+        }
+        #card-element { 
+            margin: 1rem 0; 
+            padding: 1rem; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+        }
+        button { 
+            background: #ff6b6b; 
+            color: white; 
+            border: none; 
+            padding: 12px; 
+            width: 100%; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .total-pagar {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: right;
+            margin-top: 1rem;
+            color: #ff6b6b;
+        }
+        #payment-message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 4px;
+            display: none;
+        }
+        #payment-message.error {
+            display: block;
+            background: #ffebee;
+            color: #d32f2f;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #444;
+        }
+    </style>
+</head>
+<body>
+    <h1>Finalizar Compra</h1>
+    
+    <!-- Resumen del pedido con imágenes -->
+    <div id="resumen-pedido">
+        <h2>Resumen de tu pedido</h2>
+        <div id="items-pedido"></div>
+        <div class="total-pagar">
+            Total: <span id="total-pagar">$0.00</span>
+        </div>
+    </div>
+    
+    <!-- Formulario de pago -->
+    <form id="payment-form">
+        <div id="card-element"></div>
+        <button id="submit-button">Pagar ahora</button>
+    </form>
+    <div id="payment-message" class="hidden"></div>
+
+    <script>
+        // 1. Cargar datos del pedido desde sessionStorage
+        const pedido = JSON.parse(sessionStorage.getItem('pedidoActual'));
+        const total = pedido ? pedido.total.toFixed(2) : '0.00';
+        
+        // 2. Mostrar resumen del pedido con imágenes
+        document.getElementById('total-pagar').textContent = `$${total}`;
+        
+        if (pedido && pedido.items) {
+            const itemsContainer = document.getElementById('items-pedido');
+            pedido.items.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'item-pedido';
+                itemElement.innerHTML = `
+                    <img src="${item.imagen}" alt="${item.nombre}" class="item-imagen">
+                    <div class="item-info">
+                        <div class="item-nombre">${item.nombre} x ${item.cantidad}</div>
+                        <div class="item-precio">$${(item.precio * item.cantidad).toFixed(2)}</div>
+                    </div>
+                `;
+                itemsContainer.appendChild(itemElement);
+            });
+        } else {
+            document.getElementById('items-pedido').innerHTML = '<p>No hay productos en tu carrito</p>';
+            document.getElementById('submit-button').disabled = true;
+            document.getElementById('payment-message').textContent = 'No hay productos para pagar. Regresa al carrito.';
+            document.getElementById('payment-message').className = 'error';
+        }
+
+        // 3. Configuración de Stripe
+        const stripe = Stripe('pk_test_51RF0ikPEdJmLsFota7qHHELcXtVRDK13JemQYKXHsVtSucOE8YHPHsKRsr5KMO6HXKiAhtiNC0qxNbp5BrJ7KOCX00fh4C4sko');
+        const elements = stripe.elements();
+        const cardElement = elements.create('card');
+        cardElement.mount('#card-element');
+
+        // 4. Manejar el envío del formulario
+        const form = document.getElementById('payment-form');
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            const submitButton = document.getElementById('submit-button');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Procesando...';
+            
+            const {error, paymentMethod} = await stripe.createPaymentMethod({
+                type: 'card',
+                card: cardElement,
+            });
+
+            if (error) {
+                document.getElementById('payment-message').textContent = error.message;
+                document.getElementById('payment-message').className = 'error';
+                submitButton.disabled = false;
+                submitButton.textContent = 'Pagar ahora';
+            } else {
+                // Enviar el paymentMethod.id a tu servidor
+                fetch('/tu-servidor/crear-pago', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        paymentMethodId: paymentMethod.id,
+                        amount: Math.round(parseFloat(total) * 100), // Stripe usa centavos
+                        items: pedido ? pedido.items : []
+                    })
+                }).then(response => response.json())
+                .then(result => {
+                    if (result.error) {
+                        throw new Error(result.error);
+                    }
+                    // Limpiar el carrito después de un pago exitoso
+                    sessionStorage.removeItem('pedidoActual');
+                    window.location.href = 'gracias.html';
+                })
+                .catch(error => {
+                    document.getElementById('payment-message').textContent = error.message || 'Ocurrió un error al procesar el pago';
+                    document.getElementById('payment-message').className = 'error';
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Pagar ahora';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
